@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+dist/
+dist-ssr
+*.local
+
+# Environment
+.env
+.env.local
+
+# Logs
+npm-debug.log*
