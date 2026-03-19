@@ -48,6 +48,18 @@ const Home = () => {
   ]);
   const [latestBooks, setLatestBooks] = useState([]);
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -67,10 +79,17 @@ const Home = () => {
       <section className="relative h-screen flex items-center overflow-hidden">
         {/* Background Spline Container */}
         <div className="absolute inset-0 z-0">
-          <Spline
-            scene="https://prod.spline.design/871WiwurlAM-Whpb/scene.splinecode"
-            className="w-full h-full object-cover"
-          />
+          {!isMobile ? (
+            <Spline
+              scene="https://prod.spline.design/871WiwurlAM-Whpb/scene.splinecode"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div 
+              className="w-full h-full bg-cover bg-center opacity-40 mix-blend-lighten"
+              style={{ backgroundImage: `url('/hero-mobile.png')` }}
+            />
+          )}
           {/* subtle mask to ensure text readability without hiding the 3D scene */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent pointer-events-none" />
