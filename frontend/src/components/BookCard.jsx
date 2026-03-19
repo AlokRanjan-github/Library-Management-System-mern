@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
 import { FaBookOpen, FaUserAstronaut, FaShapes, FaLayerGroup } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
-const BookCard = ({ book, onBorrow }) => {
+const BookCard = ({ book, onBorrow, isAlreadyBorrowed }) => {
   const role = localStorage.getItem('role');
   const isAvailable = book.availableCopies > 0;
 
@@ -18,10 +19,14 @@ const BookCard = ({ book, onBorrow }) => {
           </div>
           <span 
             className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-              isAvailable ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'
+              isAlreadyBorrowed 
+                ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+                : isAvailable 
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                  : 'bg-red-500/20 text-red-400 border border-red-500/30'
             }`}
           >
-            {isAvailable ? `${book.availableCopies} Available` : 'Out of Stock'}
+            {isAlreadyBorrowed ? 'Already Borrowed' : isAvailable ? `${book.availableCopies} Available` : 'Out of Stock'}
           </span>
         </div>
         
@@ -46,22 +51,24 @@ const BookCard = ({ book, onBorrow }) => {
       </div>
 
       {role === 'student' && (
-        <div className="mt-6 pt-4 border-t border-slate-700 hidden">
-          {/* Note: In BrowseBooks we handle the borrow button dynamically */}
-        </div>
-      )}
-
-      {role === 'student' && (
         <button
-          onClick={() => onBorrow(book._id)}
-          disabled={!isAvailable}
-          className={`mt-6 w-full py-3 px-4 rounded-xl font-bold transition-all ${
-            isAvailable 
-              ? 'bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-primary/25 transform hover:-translate-y-1' 
-              : 'bg-slate-700 text-slate-500 cursor-not-allowed border border-slate-600'
+          onClick={() => {
+            if (isAlreadyBorrowed) {
+              toast.info('You have already borrowed this book. Check your dashboard!');
+              return;
+            }
+            onBorrow(book._id);
+          }}
+          disabled={!isAvailable && !isAlreadyBorrowed}
+          className={`mt-6 w-full py-3 px-4 rounded-xl font-bold transition-all shadow-lg ${
+            isAlreadyBorrowed
+              ? 'bg-indigo-600 text-white hover:bg-indigo-700 transform hover:-translate-y-1'
+              : isAvailable 
+                ? 'bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-primary/25 transform hover:-translate-y-1' 
+                : 'bg-slate-700 text-slate-500 cursor-not-allowed border border-slate-600'
           }`}
         >
-          {isAvailable ? 'Borrow Book' : 'Unavailable'}
+          {isAlreadyBorrowed ? 'Already Borrowed' : isAvailable ? 'Borrow Book' : 'Unavailable'}
         </button>
       )}
     </motion.div>

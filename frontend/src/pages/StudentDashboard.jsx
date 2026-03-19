@@ -212,38 +212,51 @@ const StudentDashboard = () => {
           </button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {availableBooks.slice(0, 8).map((book, index) => (
-            <FadeInSection key={book._id} delay={index * 0.05}>
-              <AnimatedCard className="bg-slate-800 rounded-2xl overflow-hidden border border-slate-700 hover:border-accent transition-all duration-300 shadow-md flex flex-col h-full group">
-                <div className="p-6 flex flex-col flex-grow">
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="text-[10px] bg-slate-700 text-secondary px-2 py-1 rounded-full font-bold uppercase tracking-widest group-hover:bg-secondary group-hover:text-white transition-colors">
-                      {book.category?.name || 'Category'}
-                    </span>
-                    <span className="text-[10px] text-slate-500 font-mono">{book.isbn}</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-1 line-clamp-2 leading-tight">{book.title}</h3>
-                  <p className="text-sm text-slate-400 mb-6">{book.author}</p>
-                  
-                  <div className="mt-auto pt-4 border-t border-slate-700/50 flex items-center justify-between">
-                    <div>
-                      <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">Availability</p>
-                      <span className={`text-sm font-bold ${book.availableCopies > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                        {book.availableCopies} Copies
+          {availableBooks.slice(0, 8).map((book, index) => {
+            const isAlreadyBorrowed = borrowed.some(b => 
+              (b.status === 'borrowed' || b.status === 'pending_return') && 
+              (b.bookId?._id === book._id || b.bookId === book._id)
+            );
+            
+            return (
+              <FadeInSection key={book._id} delay={index * 0.05}>
+                <AnimatedCard className={`bg-slate-800 rounded-2xl overflow-hidden border transition-all duration-300 shadow-md flex flex-col h-full group ${isAlreadyBorrowed ? 'border-indigo-500/30 shadow-indigo-500/10' : 'border-slate-700 hover:border-accent'}`}>
+                  <div className="p-6 flex flex-col flex-grow">
+                    <div className="flex justify-between items-start mb-3">
+                      <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-widest transition-colors ${isAlreadyBorrowed ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-700 text-secondary group-hover:bg-secondary group-hover:text-white'}`}>
+                        {isAlreadyBorrowed ? 'In Your Library' : book.category?.name || 'Category'}
                       </span>
+                      <span className="text-[10px] text-slate-500 font-mono">{book.isbn}</span>
                     </div>
-                    <button 
-                      onClick={() => handleBorrow(book._id)}
-                      disabled={book.availableCopies === 0}
-                      className="text-sm font-bold text-white bg-primary hover:bg-blue-600 px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-50 disabled:shadow-none"
-                    >
-                      {book.availableCopies > 0 ? 'Borrow' : 'Waitlist'}
-                    </button>
+                    <h3 className="text-xl font-bold text-white mb-1 line-clamp-2 leading-tight">{book.title}</h3>
+                    <p className="text-sm text-slate-400 mb-6">{book.author}</p>
+                    
+                    <div className="mt-auto pt-4 border-t border-slate-700/50 flex items-center justify-between">
+                      <div>
+                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">Availability</p>
+                        <span className={`text-sm font-bold ${isAlreadyBorrowed ? 'text-indigo-400' : book.availableCopies > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {isAlreadyBorrowed ? 'Already Active' : `${book.availableCopies} Copies`}
+                        </span>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          if (isAlreadyBorrowed) {
+                            toast.info('You have already borrowed this book. View it in your active borrows!');
+                            return;
+                          }
+                          handleBorrow(book._id);
+                        }}
+                        disabled={book.availableCopies === 0 && !isAlreadyBorrowed}
+                        className={`text-sm font-bold text-white px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-50 disabled:shadow-none ${isAlreadyBorrowed ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-primary hover:bg-blue-600'}`}
+                      >
+                        {isAlreadyBorrowed ? 'Already Borrowed' : book.availableCopies > 0 ? 'Borrow' : 'Waitlist'}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </AnimatedCard>
-            </FadeInSection>
-          ))}
+                </AnimatedCard>
+              </FadeInSection>
+            );
+          })}
           {availableBooks.length === 0 && (
             <div className="col-span-full py-16 text-center bg-slate-800/10 rounded-2xl border border-slate-800 border-dashed">
               <p className="text-slate-500">Wait for new arrivals to enjoy reading!</p>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { bookService } from '../services/api';
+import { bookService, studentService } from '../services/api';
 import BookCard from '../components/BookCard';
 import PageTransition from '../components/animations/PageTransition';
 import { FaSearch, FaBookOpen } from 'react-icons/fa';
@@ -8,19 +8,40 @@ import { toast } from 'react-toastify';
 
 const BrowseBooks = () => {
   const [books, setBooks] = useState([]);
+  const [borrowedBookIds, setBorrowedBookIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const role = localStorage.getItem('role');
 
   const fetchBooks = useCallback(async () => {
     try {
-      const data = await bookService.getBooks(searchTerm);
-      setBooks(data.books);
+      // 1. Fetch Catalog (This is public and should not fail if not logged in)
+      const booksData = await bookService.getBooks(searchTerm);
+      setBooks(booksData.books);
+      
+      // 2. Fetch User-specific info if logged in as student
+      if (role === 'student') {
+        try {
+          const borrowedData = await studentService.getBorrowedBooks();
+          if (borrowedData && Array.isArray(borrowedData)) {
+            const activeBorrowedIds = new Set(
+              borrowedData
+                .filter(b => b.status === 'borrowed' || b.status === 'pending_return')
+                .map(b => b.bookId?._id || b.bookId)
+            );
+            setBorrowedBookIds(activeBorrowedIds);
+          }
+        } catch (borrowErr) {
+          // If fetching borrowed books fails (e.g., token expired), we still show the catalog
+          console.warn('Session check failed, showing standard catalog.', borrowErr);
+        }
+      }
     } catch (err) {
-      toast.error('Failed to fetch books. Please try again.');
+      toast.error('Failed to load the library catalog. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, [searchTerm]);
+  }, [searchTerm, role]);
 
   useEffect(() => {
     fetchBooks();
@@ -88,7 +109,12 @@ const BrowseBooks = () => {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           >
             {books.map((book) => (
-              <BookCard key={book._id} book={book} onBorrow={handleBorrow} />
+              <BookCard 
+                key={book._id} 
+                book={book} 
+                onBorrow={handleBorrow} 
+                isAlreadyBorrowed={borrowedBookIds.has(book._id)}
+              />
             ))}
           </motion.div>
         ) : (

@@ -86,8 +86,11 @@ const Home = () => {
             />
           ) : (
             <div 
-              className="w-full h-full bg-cover bg-center opacity-40 mix-blend-lighten"
-              style={{ backgroundImage: `url('/hero-mobile.png')` }}
+              className="w-full h-full bg-no-repeat bg-center"
+              style={{ 
+                backgroundImage: `url('/hero-mobile.png')`,
+                backgroundSize: '150%'
+              }}
             />
           )}
           {/* subtle mask to ensure text readability without hiding the 3D scene */}
