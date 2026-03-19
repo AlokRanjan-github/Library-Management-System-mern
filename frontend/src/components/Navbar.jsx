@@ -98,7 +98,7 @@ const Navbar = () => {
                 <FaBookOpen className="text-white text-xl" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Code Stack Lib
+                BookNest
               </span>
             </Link>
           </div>
@@ -109,11 +109,10 @@ const Navbar = () => {
               <Link
                 key={link.name}
                 to={link.path}
-                className={`relative flex items-center transition-colors text-sm font-medium py-2 ${
-                  link.isAdmin 
-                    ? 'text-red-400 hover:text-red-300' 
+                className={`relative flex items-center transition-colors text-sm font-medium py-2 ${link.isAdmin
+                    ? 'text-red-400 hover:text-red-300'
                     : (location.pathname === link.path ? 'text-accent' : 'text-slate-300 hover:text-white')
-                }`}
+                  }`}
               >
                 {link.icon}
                 {link.name}
@@ -211,11 +210,10 @@ const Navbar = () => {
                 <Link
                   key={link.name}
                   to={link.path}
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
-                    link.isAdmin 
-                      ? 'text-red-400 border border-red-400/20 bg-red-400/5' 
+                  className={`block px-3 py-2 rounded-md text-base font-medium ${link.isAdmin
+                      ? 'text-red-400 border border-red-400/20 bg-red-400/5'
                       : (location.pathname === link.path ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white')
-                  }`}
+                    }`}
                 >
                   {link.name}
                 </Link>
