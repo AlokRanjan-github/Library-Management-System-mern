@@ -91,8 +91,8 @@ Database (MongoDB)
 
 **Services Used:**
 - **API Testing** → Postman
-- **Deployment** → Docker / Cloud
-- **CI/CD** → GitHub Actions
+- **Deployment** → Render | Vercel
+
 
 ---
 
